@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>TcpServer 启动与连接接入时序</title>
+</head>
+<body style="margin:0;padding:0;background:#ffffff;">
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1160" viewBox="0 0 1100 1160" font-family="'Microsoft YaHei','PingFang SC',Arial,sans-serif">
+  <defs>
+    <marker id="aB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/></marker>
+    <marker id="aC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0e7490"/></marker>
+    <marker id="aO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker>
+  </defs>
+
+  <text x="550" y="32" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">TcpServer 启动与连接接入时序</text>
+
+  <!-- 泳道背景 -->
+  <rect x="40" y="56" width="480" height="1070" rx="12" fill="#eff6ff" stroke="#bfdbfe"/>
+  <rect x="580" y="56" width="480" height="1070" rx="12" fill="#ecfeff" stroke="#a5f3fc"/>
+  <rect x="40" y="56" width="480" height="42" rx="12" fill="#1d4ed8"/>
+  <text x="280" y="82" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">主线程 (TcpServer)</text>
+  <rect x="580" y="56" width="480" height="42" rx="12" fill="#0e7490"/>
+  <text x="820" y="82" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">子线程池 (LoopThread i)</text>
+
+  <!-- ===== 启动阶段 ===== -->
+  <rect x="110" y="118" width="340" height="44" rx="9" fill="#1e3a8a"/>
+  <circle cx="132" cy="140" r="12" fill="#ffffff"/>
+  <text x="132" y="145" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a8a">1</text>
+  <text x="290" y="145" text-anchor="middle" font-size="14.5" font-weight="700" fill="#ffffff">TcpServer::Start()</text>
+
+  <line x1="280" y1="162" x2="280" y2="186" stroke="#1d4ed8" stroke-width="2" marker-end="url(#aB)"/>
+
+  <rect x="110" y="190" width="340" height="44" rx="9" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <circle cx="132" cy="212" r="12" fill="#1d4ed8"/>
+  <text x="132" y="217" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">2</text>
+  <text x="290" y="217" text-anchor="middle" font-size="14.5" font-weight="600" fill="#1e3a8a">LoopThreadPool::Create()</text>
+
+  <line x1="280" y1="234" x2="280" y2="258" stroke="#1d4ed8" stroke-width="2" marker-end="url(#aB)"/>
+
+  <rect x="110" y="262" width="340" height="44" rx="9" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+  <circle cx="132" cy="284" r="12" fill="#d97706"/>
+  <text x="132" y="289" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">3</text>
+  <text x="290" y="289" text-anchor="middle" font-size="14.5" font-weight="700" fill="#92400e">new LoopThread()</text>
+
+  <path d="M 450 284 L 650 284" stroke="#d97706" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#aO)" fill="none"/>
+  <text x="550" y="276" text-anchor="middle" font-size="11.5" fill="#b45309" font-weight="600">创建并启动子线程</text>
+
+  <rect x="650" y="262" width="340" height="56" rx="9" fill="#cffafe" stroke="#0e7490" stroke-width="1.5"/>
+  <circle cx="672" cy="290" r="12" fill="#0e7490"/>
+  <text x="672" y="295" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">3</text>
+  <text x="840" y="285" text-anchor="middle" font-size="14" font-weight="700" fill="#155e75">实例化 std::thread</text>
+  <text x="840" y="305" text-anchor="middle" font-size="12" fill="#155e75">内核调度，开始执行 ThreadEntry</text>
+
+  <line x1="820" y1="318" x2="820" y2="346" stroke="#0e7490" stroke-width="2" marker-end="url(#aC)"/>
+
+  <rect x="650" y="350" width="340" height="44" rx="9" fill="#cffafe" stroke="#0e7490" stroke-width="1.5"/>
+  <circle cx="672" cy="372" r="12" fill="#0e7490"/>
+  <text x="672" y="377" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">4</text>
+  <text x="840" y="377" text-anchor="middle" font-size="14.5" font-weight="700" fill="#155e75">运行 ThreadEntry()</text>
+
+  <line x1="820" y1="394" x2="820" y2="418" stroke="#0e7490" stroke-width="2" marker-end="url(#aC)"/>
+
+  <rect x="650" y="422" width="340" height="52" rx="9" fill="#ffffff" stroke="#0e7490" stroke-width="1.5"/>
+  <circle cx="672" cy="448" r="12" fill="#0e7490"/>
+  <text x="672" y="453" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">5</text>
+  <text x="840" y="445" text-anchor="middle" font-size="14" font-weight="700" fill="#155e75">栈上实例化 EventLoop loop</text>
+  <text x="840" y="465" text-anchor="middle" font-size="12" fill="#334155">子线程自己的事件循环对象</text>
+
+  <rect x="110" y="360" width="340" height="56" rx="9" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+  <circle cx="132" cy="388" r="12" fill="#ca8a04"/>
+  <text x="132" y="393" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">6</text>
+  <text x="290" y="385" text-anchor="middle" font-size="14.5" font-weight="700" fill="#713f12">GetLoop() 挂起等待 …</text>
+  <text x="290" y="405" text-anchor="middle" font-size="12" fill="#854d0e">condition_variable.wait()</text>
+
+  <line x1="820" y1="474" x2="820" y2="500" stroke="#0e7490" stroke-width="2" marker-end="url(#aC)"/>
+
+  <rect x="650" y="504" width="340" height="44" rx="9" fill="#cffafe" stroke="#0e7490" stroke-width="1.5"/>
+  <circle cx="672" cy="526" r="12" fill="#0e7490"/>
+  <text x="672" y="531" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">7</text>
+  <text x="840" y="531" text-anchor="middle" font-size="14.5" font-weight="700" fill="#155e75">_loop = &amp;loop;</text>
+
+  <rect x="650" y="560" width="340" height="48" rx="9" fill="#cffafe" stroke="#0e7490" stroke-width="1.5"/>
+  <circle cx="672" cy="584" r="12" fill="#0e7490"/>
+  <text x="672" y="589" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">8</text>
+  <text x="840" y="581" text-anchor="middle" font-size="14" font-weight="700" fill="#155e75">_cond.notify_all()</text>
+  <text x="840" y="600" text-anchor="middle" font-size="11.5" fill="#155e75">唤醒挂起的主线程</text>
+
+  <path d="M 650 584 C 580 584, 580 388, 450 388" stroke="#d97706" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#aO)" fill="none"/>
+
+  <rect x="110" y="446" width="340" height="48" rx="9" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <circle cx="132" cy="470" r="12" fill="#1d4ed8"/>
+  <text x="132" y="475" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">9</text>
+  <text x="290" y="467" text-anchor="middle" font-size="14" font-weight="700" fill="#1e3a8a">成功拿到 _loop 指针</text>
+  <text x="290" y="486" text-anchor="middle" font-size="11.5" fill="#1e40af">返回主线程，继续 Create()</text>
+
+  <rect x="650" y="624" width="340" height="52" rx="9" fill="#cffafe" stroke="#0e7490" stroke-width="1.5"/>
+  <circle cx="672" cy="650" r="12" fill="#0e7490"/>
+  <text x="672" y="655" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">9</text>
+  <text x="840" y="647" text-anchor="middle" font-size="14" font-weight="700" fill="#155e75">loop.Start()</text>
+  <text x="840" y="667" text-anchor="middle" font-size="12" fill="#334155">沉睡在 epoll_wait，等待事件</text>
+
+  <line x1="280" y1="494" x2="280" y2="534" stroke="#1d4ed8" stroke-width="2" marker-end="url(#aB)"/>
+  <rect x="110" y="538" width="340" height="56" rx="9" fill="#1e3a8a"/>
+  <circle cx="132" cy="566" r="12" fill="#ffffff"/>
+  <text x="132" y="571" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a8a">10</text>
+  <text x="290" y="563" text-anchor="middle" font-size="14.5" font-weight="700" fill="#ffffff">主线程准备就绪</text>
+  <text x="290" y="583" text-anchor="middle" font-size="12.5" fill="#bfdbfe">开启 baseloop 监听！</text>
+
+  <!-- 分隔条（下移，避开右栏步骤9） -->
+  <rect x="60" y="710" width="980" height="38" rx="19" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="550" y="735" text-anchor="middle" font-size="14.5" font-weight="700" fill="#92400e">============================== 客户端发起连接请求 ==============================</text>
+
+  <!-- 连接阶段 -->
+  <rect x="110" y="780" width="340" height="48" rx="9" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <circle cx="132" cy="804" r="12" fill="#1d4ed8"/>
+  <text x="132" y="809" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">11</text>
+  <text x="290" y="801" text-anchor="middle" font-size="14" font-weight="700" fill="#1e3a8a">Acceptor 收到新客户端 connect</text>
+  <text x="290" y="820" text-anchor="middle" font-size="11.5" fill="#1e40af">baseloop 上 ListenSocket 可读</text>
+
+  <line x1="280" y1="828" x2="280" y2="854" stroke="#1d4ed8" stroke-width="2" marker-end="url(#aB)"/>
+
+  <rect x="110" y="858" width="340" height="44" rx="9" fill="#1e3a8a"/>
+  <circle cx="132" cy="880" r="12" fill="#ffffff"/>
+  <text x="132" y="885" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a8a">12</text>
+  <text x="290" y="885" text-anchor="middle" font-size="14.5" font-weight="700" fill="#ffffff">TcpServer::NewConnection()</text>
+
+  <line x1="280" y1="902" x2="280" y2="928" stroke="#1d4ed8" stroke-width="2" marker-end="url(#aB)"/>
+
+  <rect x="110" y="932" width="340" height="56" rx="9" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+  <circle cx="132" cy="960" r="12" fill="#d97706"/>
+  <text x="132" y="965" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">13</text>
+  <text x="290" y="957" text-anchor="middle" font-size="14.5" font-weight="700" fill="#92400e">NextLoop() — Round-Robin</text>
+  <text x="290" y="977" text-anchor="middle" font-size="12" fill="#78350f">轮询选择下一个子 EventLoop</text>
+
+  <path d="M 450 960 L 650 960" stroke="#d97706" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#aO)" fill="none"/>
+  <text x="550" y="952" text-anchor="middle" font-size="11.5" fill="#b45309" font-weight="600">取出 _loops[_next_idx]</text>
+
+  <rect x="650" y="932" width="340" height="56" rx="9" fill="#cffafe" stroke="#0e7490" stroke-width="1.5"/>
+  <circle cx="672" cy="960" r="12" fill="#0e7490"/>
+  <text x="672" y="965" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">13</text>
+  <text x="840" y="957" text-anchor="middle" font-size="14" font-weight="700" fill="#155e75">选定目标子 EventLoop</text>
+  <text x="840" y="977" text-anchor="middle" font-size="12" fill="#155e75">_next_idx 自增取模</text>
+
+  <line x1="820" y1="988" x2="820" y2="1014" stroke="#0e7490" stroke-width="2" marker-end="url(#aC)"/>
+
+  <rect x="650" y="1018" width="340" height="64" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <circle cx="672" cy="1050" r="13" fill="#15803d"/>
+  <text x="672" y="1055" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">14</text>
+  <text x="840" y="1043" text-anchor="middle" font-size="14" font-weight="700" fill="#14532d">将 clientfd 事件注册到该子 EventLoop 的 Poller</text>
+  <text x="840" y="1065" text-anchor="middle" font-size="12" fill="#166534">跨线程投递：queueInLoop / epoll_ctl ADD</text>
+
+  <text x="280" y="1070" text-anchor="middle" font-size="12" fill="#64748b">主线程只 accept，连接后业务读写全在子线程</text>
+
+</svg>
+</body>
+</html>
